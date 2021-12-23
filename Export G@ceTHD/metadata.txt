@@ -1,0 +1,9 @@
+[general]
+name=Export G@ceTHD
+description=Export Plugin
+about=Plugin for export data on a database with Gr@ceTHD
+version=1.0
+qgisMinimumVersion=3.0
+author=Pierre Sicallac
+email=pierre.sicallac@engie.com
+repository=URL to the code repository

@@ -1,0 +1,5 @@
+host:EPK60018261
+user:postgres
+db:SICTIAM
+pwd:ADN2020
+port0:5432
