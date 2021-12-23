@@ -27,10 +27,8 @@ class MinimalPlugin:
 
         title = "Entrez la zone à exporter"
         label = "Zone: "
-        #default = "<zn_code ou zs_code>"
-        default = "ZN060100000000"
+        default = "<zn_code ou zs_code>"
 
-        #QMessageBox.information(None, 'Minimal plugin', 'Do something useful here')
         zone, ok = QInputDialog.getText(qid, title, label, mode, default)
 
         if ok and zone:
@@ -38,6 +36,7 @@ class MinimalPlugin:
                 return psycopg2.connect(database=db, user=user, password=pwd, host=host, port=port0)
 
             def close_connection():
+                cursor.close()
                 connexion.close()
 
             with open(cur_path + r"\conf\connection.txt", "r") as con_file:
@@ -53,7 +52,6 @@ class MinimalPlugin:
                 QMessageBox.information(None, title, msg)
 
             def get_query(query_file: str) -> list:
-                cursor = connexion.cursor()
                 with open(query_file, "r") as data_file:
                     query_list: str = []
                     while True:
@@ -61,54 +59,33 @@ class MinimalPlugin:
                         if not line0:
                             break
                         query_list.append(line0)
-                cursor.close()
                 return query_list
 
             def reset_export():
-                cursor = connexion.cursor()
                 query = get_query(cur_path + r"\conf\raz_export.txt") 
                 for q in query:
                     if q:
                         cursor.execute(q)
                 connexion.commit()
-                cursor.close()
 
             def set_export(type_zone: str, zone: str) -> bool:
-                cursor = connexion.cursor()
                 if type_zone == 'ZN':
                     query = get_query(cur_path + r"\conf\export_nro.txt")
                 else:
                     query = get_query(cur_path + r"\conf\export_sro.txt")
 
-                # try:
-                #     for q in query:
-                #         if "%s" in q:
-                #             #q.format(zone)
-                #             cursor.execute(q, zone)
-                #         else:
-                #             cursor.execute(q)
-                #         #print(cursor.statutmessage)
-                #     connexion.commit()
-                #     cursor.close()
-                #     return True
-                # except:
-                #     cursor.close()
-                #     return False
-
-                for q in query:
-                    print(q)
-                    if "%s" in q:
-                        #q.format(zone)
-                        cursor.execute(q, (zone,))
-                    else:
-                        cursor.execute(q)
-                connexion.commit()
-                return True
+                try:
+                    for q in query:
+                        if "%s" in q:
+                            cursor.execute(q, (zone,))
+                        else:
+                            cursor.execute(q)
+                    connexion.commit()
+                    return True
+                except:
+                    return False
 
             def zone_exist(type_zone: str, zone: str) -> bool:
-                print(type_zone, zone)
-                cursor = connexion.cursor()
-
                 if type_zone == "ZN":
                     QS = "SELECT zn_code FROM t_znro WHERE zn_code = '" + zone + "';"
                 elif type_zone == "ZS":
@@ -117,9 +94,6 @@ class MinimalPlugin:
                     msgbox("Type de zone inconnu", "Erreur")
                     return False
 
-                #if cursor.closed:
-                #    cursor = connexion.cursor()
-
                 cursor.execute(QS)
 
                 if cursor.description is None:
@@ -127,7 +101,6 @@ class MinimalPlugin:
                     cursor.close()
                     return False
 
-                cursor.close()
                 return True
 
             def main(zone: str):
@@ -144,4 +117,5 @@ class MinimalPlugin:
                 close_connection()
 
             connexion = set_connexion()
+            cursor = connexion.cursor()
             main(zone)
