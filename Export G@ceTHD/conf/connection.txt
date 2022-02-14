@@ -1,5 +1,5 @@
-host:EPK60018261
+host:*******
 user:postgres
-db:SICTIAM
-pwd:ADN2020
+db:********
+pwd:********
 port0:5432
